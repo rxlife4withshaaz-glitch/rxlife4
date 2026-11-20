@@ -12,6 +12,7 @@ Tip: ye sab laptop/PC par karna sabse aasan hai. Phone par folder upload karna m
 - `index.html` - website ka main page (sab sections isi me hain)
 - `style.css` - design (colors, layout)
 - `script.js` - buttons, search, reels player, etc.
+  Homepage ke rotating drug card me nayi drug jodni ho to `script.js` ke upar `FEATURED_DRUGS` list me ek line add karo.
 - `assets/img/` - logo aur saari images
 - `assets/video/` - dono reels
 - `assets/pdf/` - Unit II aur Unit III ke slides PDF (website par Download link inhi se chalte hain)

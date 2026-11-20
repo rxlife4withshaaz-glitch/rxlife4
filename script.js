@@ -1,3 +1,79 @@
+/* ---------- homepage featured-drug card ----------
+   To add a drug, add one line to FEATURED_DRUGS (cat, name, tags = 2-3 pills, note, optional href).
+   "Exam ready" and "Save this for your exams" pills are added automatically. Greek letters: \u03b1 = alpha, \u03b2 = beta. */
+var FEATURED_DRUGS=[
+  {cat:'MIXED-ACTING DRUG',name:'Ephedrine',tags:['Direct action','Indirect action'],note:'Ephedrine: Double Action',href:'#ephedrine'},
+  {cat:'DIRECT-ACTING CATECHOLAMINE',name:'Adrenaline',tags:['\u03b1 and \u03b2 agonist','Emergency drug'],note:'Adrenaline: Alpha + Beta Agonist'},
+  {cat:'SELECTIVE \u03b22 AGONIST',name:'Salbutamol',tags:['Bronchodilator','Asthma'],note:'Salbutamol: Selective \u03b22 Agonist'},
+  {cat:'MUSCARINIC ANTAGONIST',name:'Atropine',tags:['Anticholinergic','Antidote'],note:'Atropine: Muscarinic Blocker'},
+  {cat:'NON-SELECTIVE \u03b2-BLOCKER',name:'Propranolol',tags:['\u03b21 + \u03b22 block','Hypertension'],note:'Propranolol: Non-selective \u03b2-blocker'}
+];
+(function(){
+  var card=document.getElementById('featcard');
+  if(!card||!FEATURED_DRUGS.length)return;
+  var link=card.querySelector('.fc-link'),cap=document.getElementById('fc-cap'),body=document.getElementById('fc-body'),
+      pills=document.getElementById('fc-pills'),note=document.getElementById('fc-note'),dotsBox=document.getElementById('fc-dots');
+  if(!link||!cap||!body||!pills||!note||!dotsBox)return;
+  var INTERVAL=5000,FADE=350,cur=0,timer=null,swap=null,hovered=false,
+      still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches; /* reduced motion: no animation, no auto-rotate (dots still work) */
+  function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;e.textContent=txt;return e}
+  function paint(i){
+    var d=FEATURED_DRUGS[i];
+    body.style.setProperty('--n',d.name.length);
+    body.textContent='';
+    body.appendChild(el('span','fc-cat',d.cat));
+    body.appendChild(el('span','fc-name',d.name));
+    body.appendChild(el('span','fc-desc','Full explanation for your exams: how it works, uses, side effects and key points'));
+    pills.textContent='';
+    d.tags.concat(['Exam ready']).forEach(function(t){pills.appendChild(el('span','fc-pill',t))});
+    pills.appendChild(el('span','fc-pill fc-save','Save this for your exams'));
+    note.textContent=d.note;
+    var h=d.href||'#notes';
+    link.setAttribute('href',h);cap.setAttribute('href',h);
+    cap.setAttribute('aria-label','Latest note: '+d.note+'. Open it.');
+    card.setAttribute('aria-label','Featured drug: '+d.name+', '+d.cat.toLowerCase()+' ('+(i+1)+' of '+FEATURED_DRUGS.length+')');
+    for(var k=0;k<dots.length;k++){if(k===i)dots[k].setAttribute('aria-current','true');else dots[k].removeAttribute('aria-current')}
+  }
+  function show(i,anim){
+    if(i===cur&&anim)return;
+    clearTimeout(swap);link.classList.remove('is-out','is-in');
+    if(!anim||still){cur=i;paint(i);return}
+    link.classList.add('is-out');
+    swap=setTimeout(function(){
+      cur=i;paint(i);
+      link.classList.remove('is-out');link.classList.add('is-in');
+      void link.offsetWidth;
+      link.classList.remove('is-in');
+    },FADE);
+  }
+  function paused(){
+    var f=false;try{f=!!card.querySelector(':focus-visible')}catch(e){}
+    return hovered||f||document.hidden;
+  }
+  function schedule(){
+    clearTimeout(timer);
+    if(still||FEATURED_DRUGS.length<2)return;
+    timer=setTimeout(function(){
+      if(!paused())show((cur+1)%FEATURED_DRUGS.length,true);
+      schedule();
+    },INTERVAL);
+  }
+  var dots=[];
+  if(FEATURED_DRUGS.length>1){
+    FEATURED_DRUGS.forEach(function(d,i){
+      var b=document.createElement('button');b.type='button';b.className='fc-dot';
+      b.setAttribute('aria-label','Show '+d.name);
+      b.onclick=function(){show(i,true);schedule()};
+      dotsBox.appendChild(b);dots.push(b);
+    });
+    dotsBox.hidden=false;
+  }
+  card.addEventListener('pointerenter',function(e){if(e.pointerType==='mouse')hovered=true});
+  card.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'){hovered=false;schedule()}});
+  card.addEventListener('focusout',function(){schedule()});
+  paint(0);schedule();
+})();
+
 (function(){
   var $=function(i){return document.getElementById(i)};
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
