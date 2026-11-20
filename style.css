@@ -50,7 +50,7 @@ p{max-width:70ch}
 header.top{position:sticky;top:0;z-index:30;background:rgba(7,23,46,.96);border-bottom:1px solid var(--line-soft)}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:60px}
 .bar .logo{display:block;flex:none}
-.bar .logo img{height:36px;width:auto}
+.bar .logo img{height:40px;width:auto}
 .menubtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 14px;border-radius:999px;border:2px solid #7F97B3;background:transparent;color:var(--text);font:700 .95rem var(--font);cursor:pointer}
 .menubtn svg{width:20px;height:20px}
 .menubtn:hover{border-color:var(--cyan)}
@@ -79,7 +79,7 @@ header.top{position:sticky;top:0;z-index:30;background:rgba(7,23,46,.96);border-
 .fc-link{position:absolute;inset:0;display:block;color:#fff;text-decoration:none;overflow:hidden}
 .fc-deco{position:absolute;right:-4%;top:22%;width:62%;height:auto;pointer-events:none}
 .fc-top{position:absolute;left:6.5%;right:6.5%;top:5%;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.fc-top img{width:22%;height:auto;min-width:56px;mix-blend-mode:lighten}
+.fc-top img{width:30%;height:auto;min-width:84px}
 .fc-badge{margin-top:2.2cqw;padding:.35em .9em;border-radius:999px;background:var(--teal);color:#07203A;font-size:10px;font-size:2.65cqw;font-weight:800;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
 .fc-body{position:absolute;left:6.5%;right:6.5%;top:19.5%;display:block;transition:opacity .35s ease,transform .35s ease}
 .fc-cat{display:block;color:#86D9DF;font-size:12px;font-size:3.5cqw;font-weight:700;letter-spacing:.13em}
