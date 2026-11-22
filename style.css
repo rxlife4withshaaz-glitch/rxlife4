@@ -371,3 +371,30 @@ footer .fcontact{color:#DCE6F1;overflow-wrap:anywhere}
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
+
+/* ---------- notes gate: tick a semester to get notes ---------- */
+.semgate{margin:0 0 28px;display:grid;gap:16px}
+.sempick{margin:0;padding:16px;border:1px solid var(--line);border-radius:var(--r);background:var(--card);min-width:0}
+.sempick legend{padding:0 8px;font-weight:800;color:var(--gold);font-size:.95rem;letter-spacing:.04em}
+.picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:4px}
+.pick{position:relative;display:block;min-width:0}
+.pick input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.pk{display:flex;align-items:center;gap:10px;min-height:48px;padding:8px 12px;border-radius:12px;border:2px solid #5C7898;background:#0B2039;color:var(--text);font-weight:700;font-size:.95rem;line-height:1.3}
+.bx{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:7px;border:2px solid #7F97B3;background:#07172E;color:transparent}
+.bx svg{width:16px;height:16px}
+.pick:hover .pk{border-color:var(--cyan)}
+.pick input:checked+.pk{border-color:var(--teal);background:rgba(25,199,190,.14);color:#fff}
+.pick input:checked+.pk .bx{background:var(--teal);border-color:var(--teal);color:#07172E}
+.pick input:focus-visible+.pk{outline:3px solid var(--gold);outline-offset:3px}
+.notespanel{min-width:0;border-radius:var(--r)}
+.nhint{padding:16px;border-radius:var(--r);border:2px dashed #5C7898;background:#0B2039;color:var(--muted);font-weight:600;margin:0}
+.nphead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin-bottom:14px}
+.nphead h3{margin:0}
+.nlist{display:grid;gap:16px}
+.soon{padding:22px;border-radius:var(--r);border:2px dashed #5C7898;background:#0B2039}
+.soon p{color:var(--muted);margin:6px 0 14px}
+.semnotes{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px;margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--line-soft);background:#0B2039;color:#DCE6F1;font-size:.95rem}
+.semnotes b{color:var(--gold)}
+.backrow{margin:0 0 18px}
+@media (min-width:640px){.picks{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.notespanel,.semgate,details.sem{scroll-margin-top:84px}
