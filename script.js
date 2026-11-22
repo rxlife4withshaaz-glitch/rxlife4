@@ -2,7 +2,7 @@
    To add a drug, add one line to FEATURED_DRUGS (cat, name, tags = 2-3 pills, note, optional href).
    "Exam ready" and "Save this for your exams" pills are added automatically. Greek letters: \u03b1 = alpha, \u03b2 = beta. */
 var FEATURED_DRUGS=[
-  {cat:'MIXED-ACTING DRUG',name:'Ephedrine',tags:['Direct action','Indirect action'],note:'Ephedrine: Double Action',href:'#ephedrine'},
+  {cat:'MIXED-ACTING DRUG',name:'Ephedrine',tags:['Direct action','Indirect action'],note:'Ephedrine: Double Action'},
   {cat:'DIRECT-ACTING CATECHOLAMINE',name:'Adrenaline',tags:['\u03b1 and \u03b2 agonist','Emergency drug'],note:'Adrenaline: Alpha + Beta Agonist'},
   {cat:'SELECTIVE \u03b22 AGONIST',name:'Salbutamol',tags:['Bronchodilator','Asthma'],note:'Salbutamol: Selective \u03b22 Agonist'},
   {cat:'MUSCARINIC ANTAGONIST',name:'Atropine',tags:['Anticholinergic','Antidote'],note:'Atropine: Muscarinic Blocker'},
@@ -23,14 +23,14 @@ var FEATURED_DRUGS=[
     body.textContent='';
     body.appendChild(el('span','fc-cat',d.cat));
     body.appendChild(el('span','fc-name',d.name));
-    body.appendChild(el('span','fc-desc','Full explanation for your exams: how it works, uses, side effects and key points'));
+    body.appendChild(el('span','fc-desc','Select your semester to get notes for your exams'));
     pills.textContent='';
     d.tags.concat(['Exam ready']).forEach(function(t){pills.appendChild(el('span','fc-pill',t))});
     pills.appendChild(el('span','fc-pill fc-save','Save this for your exams'));
-    note.textContent=d.note;
-    var h=d.href||'#notes';
+    note.textContent='Select your semester to get notes';
+    var h='#syllabus';
     link.setAttribute('href',h);cap.setAttribute('href',h);
-    cap.setAttribute('aria-label','Latest note: '+d.note+'. Open it.');
+    cap.setAttribute('aria-label','Select your semester to get notes.');
     card.setAttribute('aria-label','Featured drug: '+d.name+', '+d.cat.toLowerCase()+' ('+(i+1)+' of '+FEATURED_DRUGS.length+')');
     for(var k=0;k<dots.length;k++){if(k===i)dots[k].setAttribute('aria-current','true');else dots[k].removeAttribute('aria-current')}
   }
@@ -106,14 +106,16 @@ var FEATURED_DRUGS=[
   function setMenu(open){menu.classList.toggle('open',open);mb.setAttribute('aria-expanded',open?'true':'false');$('menulbl').textContent=open?'Close':'Menu'}
   mb.onclick=function(){setMenu(!menu.classList.contains('open'))};
   var navLinks=[].slice.call(menu.querySelectorAll('a'));
-  var spyMap={home:'home',notes:'notes',ephedrine:'notes',unit2:'notes',unit3:'notes',syllabus:'syllabus',reels:'reels',gpat:'gpat',careers:'careers',request:'',about:'about'};
+  var spyMap={home:'home',syllabus:'syllabus',ephedrine:'syllabus',unit2:'syllabus',unit3:'syllabus',reels:'reels',gpat:'gpat',careers:'careers',request:'',about:'about'};
   function setActive(k){navLinks.forEach(function(a){if(a.getAttribute('href')==='#'+k)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')})}
   setActive('home');
   document.addEventListener('click',function(e){
     var a=e.target.closest&&e.target.closest('a[data-nav]');
     if(!a)return;
     var id=a.getAttribute('href').slice(1);if(!$(id))return;
-    e.preventDefault();setMenu(false);goTo(id);
+    e.preventDefault();setMenu(false);
+    if(NOTE_IDS.indexOf(id)>-1){openNote(id);try{history.replaceState(null,'','#'+id)}catch(x){}}
+    else goTo(id);
     if(spyMap[id]!==undefined)setActive(spyMap[id]);
   });
 
@@ -129,72 +131,97 @@ var FEATURED_DRUGS=[
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&menu.classList.contains('open')){setMenu(false);mb.focus()}});
   function spy(){
     var cur='home';
-    Object.keys(spyMap).forEach(function(id){var el=$(id);if(el&&el.getBoundingClientRect().top<=140)cur=id});
+    Object.keys(spyMap).forEach(function(id){var el=$(id);if(el&&!el.hidden&&el.getBoundingClientRect().top<=140)cur=id});
     setActive(spyMap[cur]);
   }
   window.addEventListener('scroll',spy,{passive:true});
 
-  /* ---------- notes library ---------- */
-  var SEMS=[{"r":"I","s":[{"c":"BP101T","n":"Human Anatomy and Physiology I"},{"c":"BP102T","n":"Pharmaceutical Analysis I"},{"c":"BP103T","n":"Pharmaceutics I"},{"c":"BP104T","n":"Pharmaceutical Inorganic Chemistry"},{"c":"BP105T","n":"Communication skills"},{"c":"BP106RBT","n":"Remedial Biology"},{"c":"BP106RMT","n":"Remedial Mathematics"}]},{"r":"II","s":[{"c":"BP201T","n":"Human Anatomy and Physiology II"},{"c":"BP202T","n":"Pharmaceutical Organic Chemistry I"},{"c":"BP203T","n":"Biochemistry"},{"c":"BP204T","n":"Pathophysiology"},{"c":"BP205T","n":"Computer Applications in Pharmacy"},{"c":"BP206T","n":"Environmental sciences"}]},{"r":"III","s":[{"c":"BP301T","n":"Pharmaceutical Organic Chemistry II"},{"c":"BP302T","n":"Physical Pharmaceutics I"},{"c":"BP303T","n":"Pharmaceutical Microbiology"},{"c":"BP304T","n":"Pharmaceutical Engineering"}]},{"r":"IV","s":[{"c":"BP401T","n":"Pharmaceutical Organic Chemistry III"},{"c":"BP402T","n":"Medicinal Chemistry I"},{"c":"BP403T","n":"Physical Pharmaceutics II"},{"c":"BP404T","n":"Pharmacology I"},{"c":"BP405T","n":"Pharmacognosy and Phytochemistry I"}]},{"r":"V","s":[{"c":"BP501T","n":"Medicinal Chemistry II"},{"c":"BP502T","n":"Industrial Pharmacy I"},{"c":"BP503T","n":"Pharmacology II"},{"c":"BP504T","n":"Pharmacognosy and Phytochemistry II"},{"c":"BP505T","n":"Pharmaceutical Jurisprudence"}]},{"r":"VI","s":[{"c":"BP601T","n":"Medicinal Chemistry III"},{"c":"BP602T","n":"Pharmacology III"},{"c":"BP603T","n":"Herbal Drug Technology"},{"c":"BP604T","n":"Biopharmaceutics and Pharmacokinetics"},{"c":"BP605T","n":"Pharmaceutical Biotechnology"},{"c":"BP606T","n":"Quality Assurance"}]},{"r":"VII","s":[{"c":"BP701T","n":"Instrumental Methods of Analysis"},{"c":"BP702T","n":"Industrial Pharmacy II"},{"c":"BP703T","n":"Pharmacy Practice"},{"c":"BP704T","n":"Novel Drug Delivery System"}]},{"r":"VIII","s":[{"c":"BP801T","n":"Biostatistics and Research Methodology"},{"c":"BP802T","n":"Social and Preventive Pharmacy"},{"c":"BP803ET","n":"Pharma Marketing Management"},{"c":"BP804ET","n":"Pharmaceutical Regulatory Science"},{"c":"BP805ET","n":"Pharmacovigilance"},{"c":"BP806ET","n":"Quality Control and Standardization of Herbals"},{"c":"BP807ET","n":"Computer Aided Drug Design"},{"c":"BP808ET","n":"Cell and Molecular Biology"},{"c":"BP809ET","n":"Cosmetic Science"},{"c":"BP810ET","n":"Experimental Pharmacology"},{"c":"BP811ET","n":"Advanced Instrumentation Techniques"},{"c":"BP812ET","n":"Dietary Supplements and Nutraceuticals"}]}];
-  var SUBJECTS=[];SEMS.forEach(function(g){g.s.forEach(function(x){x.r=g.r;SUBJECTS.push(x)})});
-  function subName(c){return SUBJECTS.filter(function(x){return x.c===c})[0]||null}
-  var TYPES=['Slides','Reel','Short notes','MCQs'];
-  var items=[].slice.call(document.querySelectorAll('#results .res')).map(function(el){
-    var sj=subName(el.dataset.subject)||{n:el.dataset.subject,r:''};
-    return {el:el,subject:el.dataset.subject,types:el.dataset.types.split(','),text:(el.querySelector('h3').textContent+' '+el.dataset.subject+' '+sj.n+' semester '+sj.r+' '+el.dataset.types.replace(/,/g,' ')+' '+el.dataset.kw).toLowerCase()};
-  });
-  var q=$('q'),fs=$('fsub'),ft=$('ftype');
-  function cnt(f){return items.filter(f).length}
-  fs.innerHTML='<option value="">All subjects</option>'+SEMS.map(function(g){return '<optgroup label="Semester '+g.r+'">'+g.s.map(function(s){var k=cnt(function(i){return i.subject===s.c});return '<option value="'+s.c+'">'+s.c+' '+s.n+(k?' ('+k+')':'')+'</option>'}).join('')+'</optgroup>'}).join('');
-  ft.innerHTML='<option value="">All types</option>'+TYPES.map(function(t){return '<option value="'+t+'">'+t+' ('+cnt(function(i){return i.types.indexOf(t)>-1})+')</option>'}).join('');
-  $('road').innerHTML=SEMS.map(function(g){
-    var k=g.s.filter(function(x){return cnt(function(i){return i.subject===x.c})>0}).length;
-    var st=k?'<span class="st st-a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>'+k+(k===1?' subject has notes':' subjects have notes')+'</span>':'<span class="st st-p"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></svg>Notes coming soon</span>';
-    return '<li><button type="button" class="rcard" data-sem="'+g.r+'"><b>Semester '+g.r+'</b>'+st+'<span class="n">'+g.s.length+' subjects listed</span></button></li>';
-  }).join('');
-  function filt(){
-    var term=q.value.trim().toLowerCase(),words=term?term.split(/\s+/):[],sv=fs.value,tv=ft.value,shown=0;
-    items.forEach(function(i){
-      var ok=(!sv||i.subject===sv)&&(!tv||i.types.indexOf(tv)>-1)&&words.every(function(w){return i.text.indexOf(w)>-1});
-      i.el.hidden=!ok;if(ok)shown++;
-    });
-    var active=!!(term||sv||tv);
-    $('clear').hidden=!active;
-    $('count').textContent='Showing '+shown+' of '+items.length+' published resource'+(items.length===1?'':'s');
-    var em=$('empty');em.hidden=shown>0;
-    if(!shown){
-      var sub=subName(sv);
-      if(term){$('emptyh').textContent='No published note matches "'+q.value.trim()+'"';$('emptyp').textContent='Try another keyword like atropine, receptor or glaucoma, or clear the filters. If you want this topic, suggest it.'}
-      else if(sub){$('emptyh').textContent='Notes coming soon: '+sub.n+' ('+sub.c+')';$('emptyp').textContent='No notes are published for this subject yet. If you want a topic from it first, suggest it.'}
-      else{$('emptyh').textContent='Nothing published for '+tv;$('emptyp').textContent='This resource type is not published yet.'}
-    }
+  /* ---------- notes gate: notes show only after a semester is ticked ----------
+     To publish notes for another semester: add a .nlist block with data-sem="V" (cards inside) in the notes panel,
+     and any full note sections with data-note data-sem="V". This is a page gate, not security. */
+  var ROMANS=['I','II','III','IV','V','VI','VII','VIII'];
+  var NOTE_IDS=[].slice.call(document.querySelectorAll('section[data-note]')).map(function(x){return x.id});
+  var picks=[].slice.call(document.querySelectorAll('input[name="semsel"]'));
+  var panel=$('notespanel'),npbody=$('npbody'),nhint=$('nhint'),soon=$('npsoon'),selected=null;
+  var lists=[].slice.call(document.querySelectorAll('.nlist'));
+  function hideNotes(){NOTE_IDS.forEach(function(i){$(i).hidden=true})}
+  function select(r){
+    selected=r||null;
+    picks.forEach(function(p){p.checked=(p.value===selected)});
+    if(!selected){npbody.hidden=true;nhint.hidden=false;hideNotes();return}
+    nhint.hidden=true;npbody.hidden=false;
+    $('nptitle').textContent='Semester '+selected+' notes';
+    var has=false;
+    lists.forEach(function(l){var on=l.dataset.sem===selected;l.hidden=!on;if(on)has=true});
+    soon.hidden=has;
+    if(!has)$('soonh').textContent='Notes coming soon for Semester '+selected;
+    NOTE_IDS.forEach(function(i){var n=$(i);if(n.dataset.sem!==selected)n.hidden=true});
   }
-  function clearAll(){q.value='';fs.value='';ft.value='';filt();q.focus()}
-  q.addEventListener('input',filt);fs.addEventListener('change',filt);ft.addEventListener('change',filt);
-  $('clear').onclick=clearAll;$('clear2').onclick=clearAll;
+  function toPanel(){
+    panel.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+    try{panel.focus({preventScroll:true})}catch(e){}
+  }
+  picks.forEach(function(p){p.addEventListener('change',function(){if(p.checked){select(p.value);setActive('syllabus')}})});
+  $('npclose').onclick=function(){select(null);var c=$('semgate');c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});var f=picks[0];if(f)f.focus({preventScroll:true})};
+  function openNote(id,opt){
+    var el=$(id);if(!el)return;
+    select(el.dataset.sem);
+    NOTE_IDS.forEach(function(i){$(i).hidden=(i!==id)});
+    if(id==='ephedrine')showSlide(curSlide);
+    if(!opt||opt.scroll!==false)goTo(id);
+    setActive('syllabus');
+  }
+  function backToList(){hideNotes();toPanel()}
+  document.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('button[data-back]');
+    if(b){e.preventDefault();backToList();return}
+    var p=e.target.closest&&e.target.closest('button[data-pick]');
+    if(p){select(p.dataset.pick);toPanel();setActive('syllabus')}
+  });
+  /* each semester panel gets a small notes row */
+  [].slice.call(document.querySelectorAll('details.sem')).forEach(function(d){
+    var r=d.id.replace('sem-',''),sb=d.querySelector('.sb');if(!sb)return;
+    var l=lists.filter(function(x){return x.dataset.sem===r})[0],row=document.createElement('div');
+    row.className='semnotes';
+    if(l){
+      var k=l.querySelectorAll('.res').length;
+      row.innerHTML='<span><b>Notes for this semester:</b> '+k+' available</span>';
+      var bt=document.createElement('button');bt.type='button';bt.className='btn btn-p btn-sm';bt.dataset.pick=r;bt.textContent='Show Semester '+r+' notes';row.appendChild(bt);
+    }else{
+      row.innerHTML='<span><b>Notes for this semester:</b> coming soon</span>';
+      var a=document.createElement('a');a.className='btn btn-s btn-sm';a.href='#request';a.setAttribute('data-nav','');a.textContent='Suggest a topic';row.appendChild(a);
+    }
+    sb.insertBefore(row,sb.firstChild);
+  });
   function openSem(r){
     var d=$('sem-'+r);if(!d)return;
     d.open=true;setActive('syllabus');
     d.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
     try{d.querySelector('summary').focus({preventScroll:true})}catch(e){}
   }
-  $('road').addEventListener('click',function(e){
-    var b=e.target.closest('button[data-sem]');if(!b)return;
-    openSem(b.dataset.sem);
-  });
   document.addEventListener('click',function(e){
     var a=e.target.closest&&e.target.closest('a[data-sem]');
     if(a){e.preventDefault();e.stopPropagation();openSem(a.dataset.sem);return}
     var b=e.target.closest&&e.target.closest('button[data-notes]');if(!b)return;
-    fs.value=b.dataset.notes;filt();$('notes').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});setActive('notes');fs.focus({preventScroll:true});
+    select('IV');toPanel();setActive('syllabus');
   },true);
-  filt();
+  /* deep links: #ephedrine, #unit2, #unit3, #refs, #sem-IV, #notes */
+  function route(initial){
+    var id=decodeURIComponent((location.hash||'').slice(1));if(!id)return;
+    if(NOTE_IDS.indexOf(id)>-1){openNote(id);return}
+    if(id==='refs'){openNote('ephedrine',{scroll:false});goTo('refs');return}
+    var m=/^sem-(I|II|III|IV|V|VI|VII|VIII)$/.exec(id);
+    if(m){select(m[1]);var d=$(id);d.open=true;setActive('syllabus');setTimeout(function(){d.scrollIntoView({behavior:'auto',block:'start'})},0);return}
+    if(id==='notes'){goTo('syllabus');setActive('syllabus')}
+  }
+  window.addEventListener('hashchange',function(){route(false)});
 
   /* ---------- slide viewer ---------- */
   var TITLES=['Ephedrine: mixed-acting drug (cover)','What is Ephedrine?','Why Ephedrine works by mouth','Direct + indirect action','Direct vs indirect action','Why repeated doses work less','How the body handles it','Effects on each organ','Where it is used','Side effects and cautions','Contraindications and interactions','Exam recall in six lines'];
   var thumbs=[].slice.call(document.querySelectorAll('#thumbs button')),n=thumbs.length,cur=0,vimg=$('vimg');
+  var curSlide=0;function showSlide(i){show(i)}
   function show(i,focusThumb){
-    cur=(i+n)%n;
+    cur=(i+n)%n;curSlide=cur;
     vimg.src=thumbs[cur].querySelector('img').src;
     vimg.alt='Ephedrine slide '+(cur+1)+' of '+n+': '+TITLES[cur];
     $('vcount').textContent='Slide '+(cur+1)+' of '+n;
@@ -214,7 +241,7 @@ var FEATURED_DRUGS=[
   vs.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
   vs.addEventListener('touchend',function(e){if(sx===null)return;var d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>40)show(cur+(d<0?1:-1));sx=null});
   show(0);
-  $('viewslides').onclick=function(){show(0);$('viewer').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});$('viewer').focus({preventScroll:true});setActive('notes')};
+  $('viewslides').onclick=function(){openNote('ephedrine',{scroll:false});show(0);$('viewer').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});$('viewer').focus({preventScroll:true});setActive('notes')};
 
   /* ---------- reels player ---------- */
   var REELS={
@@ -269,4 +296,5 @@ var FEATURED_DRUGS=[
       else fallback();
     };
   });
+  route(true);
 })();
