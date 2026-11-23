@@ -297,4 +297,52 @@ var FEATURED_DRUGS=[
     };
   });
   route(true);
+
+  /* ---------- careers posters slideshow (separate from the ephedrine viewer) ---------- */
+  (function(){
+    var root=document.getElementById('ps-viewer');
+    if(!root)return;
+    var P=[
+      ['Medical or Scientific Writer','01'],
+      ['Pharmacovigilance Associate','02'],
+      ['Clinical Data Management','03'],
+      ['Regulatory Affairs Executive','04'],
+      ['Medical Coding','05'],
+      ['Hospital or Clinical Pharmacist','06'],
+      ['Pharma Sales and Marketing','07']
+    ];
+    var n=P.length,cur=0,img=document.getElementById('ps-img'),link=document.getElementById('ps-link'),
+        strip=document.getElementById('ps-thumbs'),thumbs=[].slice.call(strip.querySelectorAll('button'));
+    function show(i){
+      cur=(i+n)%n;
+      var src='assets/img/career-slide-'+P[cur][1]+'.webp';
+      img.src=src;img.alt=P[cur][0];link.href=src;
+      document.getElementById('ps-count').textContent=(cur+1)+' of '+n;
+      document.getElementById('ps-title').textContent=P[cur][0];
+      thumbs.forEach(function(b,k){if(k===cur)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current')});
+      var t=thumbs[cur].parentNode;
+      strip.scrollLeft=t.offsetLeft-strip.clientWidth/2+t.clientWidth/2;
+    }
+    thumbs.forEach(function(b,k){b.onclick=function(){show(k)}});
+    document.getElementById('ps-prev').onclick=function(){show(cur-1)};
+    document.getElementById('ps-next').onclick=function(){show(cur+1)};
+    root.addEventListener('keydown',function(e){
+      if(e.key==='ArrowLeft'){show(cur-1);e.preventDefault()}
+      if(e.key==='ArrowRight'){show(cur+1);e.preventDefault()}
+    });
+    var stage=document.getElementById('ps-stage'),sx=null,sy=null,swiped=false,clearT=null;
+    stage.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY;swiped=false},{passive:true});
+    stage.addEventListener('touchend',function(e){
+      if(sx===null)return;
+      var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+      if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy)){
+        swiped=true;clearTimeout(clearT);clearT=setTimeout(function(){swiped=false},400);
+        show(cur+(dx<0?1:-1));
+      }
+      sx=null;
+    });
+    /* a swipe should change the poster, not open it */
+    link.addEventListener('click',function(e){if(swiped){e.preventDefault();swiped=false}});
+    show(0);
+  })();
 })();
