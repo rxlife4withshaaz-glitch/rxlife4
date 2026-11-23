@@ -372,6 +372,23 @@ footer .fcontact{color:#DCE6F1;overflow-wrap:anywhere}
   *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
 
+/* careers posters slideshow (sits above the careers cards; same look as the slide viewer) */
+.ps{min-width:0;margin:0 0 24px;padding:14px;border-radius:var(--r);background:var(--card);border:1px solid var(--line);scroll-margin-top:72px}
+.ps:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.ps-stage{position:relative;border-radius:12px;overflow:hidden;background:#07172E;aspect-ratio:4/5;max-width:520px;margin-inline:auto}
+.ps-stage a{display:block;width:100%;height:100%}
+.ps-stage a:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.ps-stage img{display:block;width:100%;height:100%;object-fit:contain}
+.ps-title{max-width:520px;margin:10px auto 0;color:#DCE6F1;font-weight:600}
+.ps-ctl{display:flex;align-items:center;gap:10px;margin:12px auto 0;max-width:520px}
+.ps-count{margin-right:auto;color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
+.ps-thumbs{position:relative;display:flex;gap:8px;overflow-x:auto;padding:12px 2px 6px;margin:6px auto 0;list-style:none;max-width:520px;scrollbar-color:var(--teal) transparent}
+.ps-thumbs li{flex:none}
+.ps-thumbs button{display:block;width:64px;padding:0;border-radius:8px;overflow:hidden;border:3px solid transparent;background:#07172E;cursor:pointer;opacity:.8}
+.ps-thumbs button[aria-current="true"]{border-color:var(--gold);opacity:1}
+.ps-thumbs img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover}
+.ps-hint{max-width:520px;margin:8px auto 0;color:var(--muted);font-size:.9rem}
+
 /* ---------- notes gate: tick a semester to get notes ---------- */
 .semgate{margin:0 0 28px;display:grid;gap:16px}
 .sempick{margin:0;padding:16px;border:1px solid var(--line);border-radius:var(--r);background:var(--card);min-width:0}
