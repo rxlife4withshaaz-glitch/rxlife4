@@ -312,17 +312,20 @@ var FEATURED_DRUGS=[
       ['Pharma Sales and Marketing','07']
     ];
     var n=P.length,cur=0,img=document.getElementById('ps-img'),link=document.getElementById('ps-link'),
-        strip=document.getElementById('ps-thumbs'),thumbs=[].slice.call(strip.querySelectorAll('button'));
-    function show(i){
+        strip=document.getElementById('ps-thumbs'),thumbs=strip?[].slice.call(strip.querySelectorAll('button')):[];
+    function render(i){
       cur=(i+n)%n;
       var src='assets/img/career-slide-'+P[cur][1]+'.webp';
       img.src=src;img.alt=P[cur][0];link.href=src;
       document.getElementById('ps-count').textContent=(cur+1)+' of '+n;
       document.getElementById('ps-title').textContent=P[cur][0];
       thumbs.forEach(function(b,k){if(k===cur)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current')});
-      var t=thumbs[cur].parentNode;
-      strip.scrollLeft=t.offsetLeft-strip.clientWidth/2+t.clientWidth/2;
+      var t=thumbs[cur]&&thumbs[cur].parentNode;
+      if(strip&&t)strip.scrollLeft=t.offsetLeft-strip.clientWidth/2+t.clientWidth/2;
     }
+    var timer=null;
+    function show(i){render(i);clearInterval(timer);timer=setInterval(function(){render(cur+1)},4000)}
+    timer=setInterval(function(){render(cur+1)},4000);
     thumbs.forEach(function(b,k){b.onclick=function(){show(k)}});
     document.getElementById('ps-prev').onclick=function(){show(cur-1)};
     document.getElementById('ps-next').onclick=function(){show(cur+1)};
