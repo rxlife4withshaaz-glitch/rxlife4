@@ -356,7 +356,7 @@ var FEATURED_DRUGS=[
    Any unit not listed shows as a greyed "soon" button. Each card shows 5 buttons (data-units on the card). */
 (function(){
   var UNIT_PDFS={
-    BP501T:{1:'assets/pdf/RxLife4-MedChem-II-Unit-1.pdf',2:'assets/pdf/RxLife4-MedChem-II-Unit-2.pdf'},
+    BP501T:{1:'assets/pdf/RxLife4-MedChem-II-Unit-1.pdf',2:'assets/pdf/RxLife4-MedChem-II-Unit-2.pdf',3:'assets/pdf/RxLife4-MedChem-II-Unit-3.pdf',4:'assets/pdf/RxLife4-MedChem-II-Unit-4.pdf',5:'assets/pdf/RxLife4-MedChem-II-Unit-5.pdf'},
     BP404T:{2:'assets/pdf/RxLife4-Pharmacology-I-Unit-II.pdf',3:'assets/pdf/RxLife4-Pharmacology-I-Unit-III.pdf'}
   };
   [].slice.call(document.querySelectorAll('.ubtns[data-code]')).forEach(function(row){
