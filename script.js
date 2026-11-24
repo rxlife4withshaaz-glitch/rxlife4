@@ -349,3 +349,38 @@ var FEATURED_DRUGS=[
     show(0);
   })();
 })();
+
+/* ---------- unit download buttons on theory cards ----------
+   One line per subject: the units that have a PDF live on the site.
+   To publish Unit 3 of BP501T later, add 3:'assets/pdf/RxLife4-MedChem-II-Unit-3.pdf' to its line.
+   Any unit not listed shows as a greyed "soon" button. Each card shows 5 buttons (data-units on the card). */
+(function(){
+  var UNIT_PDFS={
+    BP501T:{1:'assets/pdf/RxLife4-MedChem-II-Unit-1.pdf',2:'assets/pdf/RxLife4-MedChem-II-Unit-2.pdf'},
+    BP404T:{2:'assets/pdf/RxLife4-Pharmacology-I-Unit-II.pdf',3:'assets/pdf/RxLife4-Pharmacology-I-Unit-III.pdf'}
+  };
+  [].slice.call(document.querySelectorAll('.ubtns[data-code]')).forEach(function(row){
+    var code=row.dataset.code,n=parseInt(row.dataset.units,10)||5,pdfs=UNIT_PDFS[code]||{};
+    var li=row.closest('li'),cn=li&&li.querySelector('.cn'),name=cn?cn.textContent.trim():code;
+    row.setAttribute('role','group');
+    row.setAttribute('aria-label','Unit notes for '+name);
+    for(var u=1;u<=n;u++){
+      var href=pdfs[u],el;
+      if(href){
+        el=document.createElement('a');
+        el.className='ubtn';el.href=href;el.setAttribute('download','');
+        el.setAttribute('aria-label','Unit '+u+' notes, PDF: '+name);
+        el.textContent='Unit '+u;
+      }else{
+        el=document.createElement('button');
+        el.type='button';el.className='ubtn is-off';
+        el.setAttribute('aria-disabled','true');
+        el.title='Unit '+u+' notes: coming soon';
+        el.setAttribute('aria-label','Unit '+u+' notes, coming soon: '+name);
+        el.appendChild(document.createTextNode('Unit '+u));
+        var s=document.createElement('small');s.textContent='soon';el.appendChild(s);
+      }
+      row.appendChild(el);
+    }
+  });
+})();
