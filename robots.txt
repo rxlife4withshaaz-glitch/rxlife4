@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rxlife4withshaaz-glitch.github.io/rxlife4/sitemap.xml
