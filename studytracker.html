@@ -302,22 +302,118 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
   var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var MAX_SESSIONS = 2000;
   var GROUPS = [
-    { label: 'Theory (5th sem)', items: [
+    { label: 'Semester I', items: [
+      'BP101T Human Anatomy and Physiology I',
+      'BP102T Pharmaceutical Analysis I',
+      'BP103T Pharmaceutics I',
+      'BP104T Pharmaceutical Inorganic Chemistry',
+      'BP105T Communication Skills',
+      'BP106RBT Remedial Biology',
+      'BP106RMT Remedial Mathematics',
+      'BP107P Human Anatomy and Physiology I',
+      'BP108P Pharmaceutical Analysis I',
+      'BP109P Pharmaceutics I',
+      'BP110P Pharmaceutical Inorganic Chemistry',
+      'BP111P Communication Skills',
+      'BP112RBP Remedial Biology'] },
+    { label: 'Semester II', items: [
+      'BP201T Human Anatomy and Physiology II',
+      'BP202T Pharmaceutical Organic Chemistry I',
+      'BP203T Biochemistry',
+      'BP204T Pathophysiology',
+      'BP205T Computer Applications in Pharmacy',
+      'BP206T Environmental Sciences',
+      'BP207P Human Anatomy and Physiology II',
+      'BP208P Pharmaceutical Organic Chemistry I',
+      'BP209P Biochemistry',
+      'BP210P Computer Applications in Pharmacy'] },
+    { label: 'Semester III', items: [
+      'BP301T Pharmaceutical Organic Chemistry II',
+      'BP302T Physical Pharmaceutics I',
+      'BP303T Pharmaceutical Microbiology',
+      'BP304T Pharmaceutical Engineering',
+      'BP305P Pharmaceutical Organic Chemistry II',
+      'BP306P Physical Pharmaceutics I',
+      'BP307P Pharmaceutical Microbiology',
+      'BP308P Pharmaceutical Engineering'] },
+    { label: 'Semester IV', items: [
+      'BP401T Pharmaceutical Organic Chemistry III',
+      'BP402T Medicinal Chemistry I',
+      'BP403T Physical Pharmaceutics II',
+      'BP404T Pharmacology I',
+      'BP405T Pharmacognosy and Phytochemistry I',
+      'BP406P Medicinal Chemistry I',
+      'BP407P Physical Pharmaceutics II',
+      'BP408P Pharmacology I',
+      'BP409P Pharmacognosy and Phytochemistry I'] },
+    { label: 'Semester V', items: [
       'BP501T Medicinal Chemistry II',
       'BP502T Industrial Pharmacy I',
       'BP503T Pharmacology II',
       'BP504T Pharmacognosy and Phytochemistry II',
-      'BP505T Pharmaceutical Jurisprudence'] },
-    { label: 'Practical (5th sem)', items: [
+      'BP505T Pharmaceutical Jurisprudence',
       'BP506P Industrial Pharmacy I',
       'BP507P Pharmacology II',
       'BP508P Pharmacognosy and Phytochemistry II'] },
-    { label: 'Backlog', items: [
-      'Pharmacognosy I',
-      'Physical Pharmaceutics II',
-      'POC III'] }
+    { label: 'Semester VI', items: [
+      'BP601T Medicinal Chemistry III',
+      'BP602T Pharmacology III',
+      'BP603T Herbal Drug Technology',
+      'BP604T Biopharmaceutics and Pharmacokinetics',
+      'BP605T Pharmaceutical Biotechnology',
+      'BP606T Pharmaceutical Quality Assurance',
+      'BP607P Medicinal Chemistry III',
+      'BP608P Pharmacology III',
+      'BP609P Herbal Drug Technology'] },
+    { label: 'Semester VII', items: [
+      'BP701T Instrumental Methods of Analysis',
+      'BP702T Industrial Pharmacy II',
+      'BP703T Pharmacy Practice',
+      'BP704T Novel Drug Delivery System',
+      'BP705P Instrumental Methods of Analysis',
+      'BP706PS Practice School'] },
+    { label: 'Semester VIII', items: [
+      'BP801T Biostatistics and Research Methodology',
+      'BP802T Social and Preventive Pharmacy',
+      'BP803ET Pharma Marketing Management',
+      'BP804ET Pharmaceutical Regulatory Science',
+      'BP805ET Pharmacovigilance',
+      'BP806ET Quality Control and Standardization of Herbals',
+      'BP807ET Computer Aided Drug Design',
+      'BP808ET Cell and Molecular Biology',
+      'BP809ET Cosmetic Science',
+      'BP810ET Experimental Pharmacology',
+      'BP811ET Advanced Instrumentation Techniques',
+      'BP812ET Dietary Supplements and Nutraceuticals',
+      'BP813PW Project Work'] },
+    { label: 'GPAT', items: [
+      'GPAT: Physical Chemistry',
+      'GPAT: Physical Pharmacy',
+      'GPAT: Organic Chemistry',
+      'GPAT: Pharmaceutical Chemistry',
+      'GPAT: Pharmaceutics',
+      'GPAT: Pharmacology',
+      'GPAT: Pharmacognosy',
+      'GPAT: Pharmaceutical Analysis',
+      'GPAT: Biochemistry',
+      'GPAT: Biotechnology',
+      'GPAT: Microbiology',
+      'GPAT: Pathophysiology',
+      'GPAT: Biopharmaceutics and Pharmacokinetics',
+      'GPAT: Clinical Pharmacy and Therapeutics',
+      'GPAT: Anatomy Physiology and Health Education',
+      'GPAT: Pharmaceutical Engineering',
+      'GPAT: Pharmaceutical Management',
+      'GPAT: Pharmaceutical Jurisprudence',
+      'GPAT: Dispensing and Hospital Pharmacy'] }
   ];
-  var DEFAULT_ACTIVE = 'BP501T Medicinal Chemistry II';
+  // Names used by older saves that have since been renamed to the full course code and name.
+  var LEGACY = {
+    'Pharmacognosy I': 'BP405T Pharmacognosy and Phytochemistry I',
+    'Physical Pharmaceutics II': 'BP403T Physical Pharmaceutics II',
+    'POC III': 'BP401T Pharmaceutical Organic Chemistry III'
+  };
+  var DEFAULT_ACTIVE = 'BP101T Human Anatomy and Physiology I';
   var PERIOD_NAME = { subah: 'morning', dopahar: 'afternoon', shaam: 'evening', raat: 'night' };
   var PERIOD_RANGE = { subah: 'morning (5-11 AM)', dopahar: 'afternoon (12-4 PM)', shaam: 'evening (5-8 PM)', raat: 'night (after 9 PM)' };
 
@@ -370,6 +466,9 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
     });
     return list;
   }
+  function fixName(s) {
+    return Object.prototype.hasOwnProperty.call(LEGACY, s) ? LEGACY[s] : s;
+  }
   function validSession(s) {
     return s && typeof s === 'object' && typeof s.sec === 'number' && s.sec > 0 &&
       typeof s.dayKey === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s.dayKey) &&
@@ -385,9 +484,23 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
     d.settings.longEvery = Math.round(clampNum(s.longEvery, 2, 10, 4));
     d.settings.sound = typeof s.sound === 'boolean' ? s.sound : true;
     d.dailyTargetMin = Math.round(clampNum(raw.dailyTargetMin, 5, 1440, 120));
-    d.customSubjects = Array.isArray(raw.customSubjects) ? raw.customSubjects.filter(function (x) { return typeof x === 'string' && x.trim(); }).slice(0, 40) : [];
-    d.activeSubject = typeof raw.activeSubject === 'string' ? raw.activeSubject : DEFAULT_ACTIVE;
-    d.sessions = Array.isArray(raw.sessions) ? raw.sessions.filter(validSession).slice(-MAX_SESSIONS) : [];
+    var builtIn = defaultSubjects().map(function (x) { return x.toLowerCase(); });
+    var seen = {};
+    d.customSubjects = Array.isArray(raw.customSubjects) ? raw.customSubjects
+      .filter(function (x) { return typeof x === 'string' && x.trim(); })
+      .map(function (x) { return fixName(x.replace(/\s+/g, ' ').trim()); })
+      .filter(function (x) {
+        var k = x.toLowerCase();
+        if (builtIn.indexOf(k) >= 0 || seen[k]) return false;
+        seen[k] = true;
+        return true;
+      })
+      .slice(0, 40) : [];
+    d.activeSubject = typeof raw.activeSubject === 'string' ? fixName(raw.activeSubject) : DEFAULT_ACTIVE;
+    d.sessions = Array.isArray(raw.sessions) ? raw.sessions.filter(validSession).slice(-MAX_SESSIONS).map(function (s) {
+      var name = fixName(s.subject);
+      return name === s.subject ? s : Object.assign({}, s, { subject: name });
+    }) : [];
     return d;
   }
 
@@ -433,17 +546,24 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
       if (t1 > 0) activeDays++;
       if (t1 > 0 && t1 >= tgtSec) metDays++;
     }
-    var subjects = allSubjects(data), perSub = {};
-    subjects.forEach(function (s) { perSub[s] = 0; });
+    // "Least studied" only looks at subjects in use: studied in the last 4 weeks, or added by the user.
+    var perSub = {}, recent = {};
     var periods = { subah: 0, dopahar: 0, shaam: 0, raat: 0 }, last14 = 0;
     data.sessions.forEach(function (s) {
       var ago = daysBetween(s.dayKey, today);
       if (ago >= 0 && ago <= 6) perSub[s.subject] = (perSub[s.subject] || 0) + s.sec;
+      if (ago >= 0 && ago <= 27) recent[s.subject] = true;
       if (ago >= 0 && ago <= 13) last14++;
       if (ago >= 0 && ago <= 27) periods[periodOf(new Date(s.startedAt).getHours())] += s.sec;
     });
+    var candidates = allSubjects(data).filter(function (s) {
+      return recent[s] || data.customSubjects.indexOf(s) >= 0;
+    });
     var least = null;
-    subjects.forEach(function (s) { if (least === null || perSub[s] < perSub[least]) least = s; });
+    candidates.forEach(function (s) {
+      if (least === null || (perSub[s] || 0) < (perSub[least] || 0)) least = s;
+    });
+    var leastSec = least === null ? 0 : (perSub[least] || 0);
     var bestP = null;
     ['subah', 'dopahar', 'shaam', 'raat'].forEach(function (p) { if (bestP === null || periods[p] > periods[bestP]) bestP = p; });
     var st = streakInfo(data.sessions, tgtMin, today);
@@ -455,7 +575,7 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
       thisSec: thisSec, lastSec: lastSec,
       thisMin: Math.round(thisSec / 60), lastMin: Math.round(lastSec / 60),
       activeDays: activeDays, metDays: metDays, last14: last14,
-      least: { subject: least, sec: perSub[least], min: Math.round(perSub[least] / 60), none: perSub[least] === 0 },
+      least: { subject: least, sec: leastSec, min: Math.round(leastSec / 60), none: least !== null && leastSec === 0 },
       bestPeriod: { id: bestP, sec: periods[bestP], min: Math.round(periods[bestP] / 60) },
       streak: { current: st.current, best: st.best, todayMet: st.todayMet, atRisk: st.atRisk,
         remainingTodayMin: Math.max(0, Math.ceil((tgtSec - todayTot) / 60)) }
