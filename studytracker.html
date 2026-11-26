@@ -8,6 +8,21 @@
 <meta name="hyv-type" content="dashboard">
 <meta name="hyv-layout" content="wide">
 <title>Study Tracker | RxLife4</title>
+<meta name="description" content="Free Pomodoro study tracker for B.Pharm students: focus timer, daily target, streak, session log and a weekly analysis. Your data stays in your browser.">
+<link rel="canonical" href="https://rxlife4withshaaz-glitch.github.io/rxlife4/studytracker.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="RxLife4">
+<meta property="og:title" content="Study Tracker | RxLife4">
+<meta property="og:description" content="Pomodoro timer, daily target, streak and weekly analysis for B.Pharm students. Your data stays in your browser.">
+<meta property="og:url" content="https://rxlife4withshaaz-glitch.github.io/rxlife4/studytracker.html">
+<meta property="og:image" content="https://rxlife4withshaaz-glitch.github.io/rxlife4/assets/img/study-tracker-preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="RxLife4 Study Tracker: Pomodoro timer and streak heatmap">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Study Tracker | RxLife4">
+<meta name="twitter:description" content="Pomodoro timer, daily target, streak and weekly analysis for B.Pharm students.">
+<meta name="twitter:image" content="https://rxlife4withshaaz-glitch.github.io/rxlife4/assets/img/study-tracker-preview.png">
 <style>
 :root{
   --bg:#07172E; --card:#0D2442; --band:#091D38; --teal:#19C7BE; --cyan:#48DCE2; --gold:#F4C95D;
@@ -112,7 +127,7 @@ details.settings summary{cursor:pointer;min-height:44px;display:flex;align-items
 .streak-row span{color:var(--muted);font-size:.9375rem}
 .heat{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px;margin-top:14px}
 .wk{display:grid;gap:4px;min-width:0}
-.cell{display:block;aspect-ratio:1/1;width:100%;border-radius:4px;background:var(--field);border:1px solid var(--line-soft)}
+.cell{display:block;aspect-ratio:1/1;width:100%;border-radius:4px;background:var(--field);border:1px solid var(--line-soft);position:relative}
 .cell.l1{background:rgba(25,199,190,.3);border-color:transparent}
 .cell.l2{background:rgba(25,199,190,.62);border-color:transparent}
 .cell.l3{background:var(--teal);border-color:transparent}
@@ -120,6 +135,8 @@ details.settings summary{cursor:pointer;min-height:44px;display:flex;align-items
 .cell.today{outline:2px solid var(--gold);outline-offset:1px}
 .legend{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:12px;font-size:.875rem;color:var(--muted)}
 .legend .cell{width:14px;height:14px;aspect-ratio:auto;display:inline-block}
+.cell.met::after{content:"";position:absolute;left:36%;top:17%;width:26%;height:46%;border:solid #07172E;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.legend .cell.met::after{left:37%;top:12%;width:28%;height:52%;border-width:0 1.5px 1.5px 0}
 
 /* session log */
 .log{display:grid;gap:8px;margin-top:12px;max-height:460px;overflow:auto;padding-right:2px}
@@ -141,6 +158,16 @@ details.settings summary{cursor:pointer;min-height:44px;display:flex;align-items
 .fine{color:var(--muted);font-size:.875rem;margin-top:12px}
 @media (min-width:640px){.ins{grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:start}}
 
+/* boxes, rename and session edit */
+.box{margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--field)}
+.box p + p{margin-top:6px}
+.box.warn{border-color:var(--gold);background:rgba(244,201,93,.08);color:#FCE9B4}
+.log .acts{display:flex;gap:6px;flex:none}
+.log .eb{flex:none;min-height:44px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--cyan);cursor:pointer;font-weight:700}
+.log .eb:hover{border-color:var(--cyan)}
+.log li.editing{display:block}
+.ef{display:grid;gap:10px}
+.ferr{color:#FFD2CC;font-weight:600}
 /* data */
 .reset-confirm{margin-top:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--red);background:rgba(255,138,128,.08)}
 footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28px}
@@ -159,7 +186,7 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
   <section class="hero">
     <span class="eyebrow">B.Pharm study tracker</span>
     <h1>Your study log, all in one place.</h1>
-    <p class="lead">Pomodoro timer, daily target, streak and weekly analysis. Your data is saved in this browser where possible.</p>
+    <p class="lead">Pomodoro timer, daily target, streak and weekly analysis. Your data is stored only in this browser, on this device.</p>
     <p id="storeNote" class="notice" hidden>Your data cannot be saved in this browser. If you close the page, your session log and settings will be lost.</p>
   </section>
 
@@ -186,6 +213,7 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
       </div>
       <div class="dots" id="dots" aria-label="Focus sessions in this cycle"></div>
       <p class="hint" id="timerHint"></p>
+      <p class="hint" id="defaultsLine"></p>
       <details class="settings">
         <summary>Timer settings</summary>
         <div class="fields">
@@ -199,6 +227,9 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
           <button class="btn btn-s btn-sm" id="notifyBtn" type="button">Turn on notifications</button>
           <span class="muted" id="notifyState"></span>
         </div>
+        <div class="row" style="margin-top:8px">
+          <button class="btn btn-s btn-sm" id="restoreTimerBtn" type="button">Restore default timer settings</button>
+        </div>
       </details>
     </section>
 
@@ -207,7 +238,19 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
       <div class="card-head"><h2 id="hSub">Subject</h2></div>
       <label class="label" for="subSel">What are you studying now?</label>
       <select class="input" id="subSel"></select>
-      <div class="row" style="margin-top:10px"><button class="btn btn-s btn-sm" id="removeCustom" type="button" hidden>Remove this custom subject</button></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn btn-s btn-sm" id="renameBtn" type="button" hidden>Rename this custom subject</button>
+        <button class="btn btn-s btn-sm" id="removeCustom" type="button" hidden>Remove this custom subject</button>
+      </div>
+      <div class="box" id="renameWrap" hidden>
+        <label class="label" for="renameIn">New name for this subject</label>
+        <div class="row" style="margin-top:8px">
+          <input class="input" id="renameIn" type="text" maxlength="60" style="flex:1 1 180px;width:auto">
+          <button class="btn btn-p btn-sm" id="renameSave" type="button">Save name</button>
+          <button class="btn btn-s btn-sm" id="renameCancel" type="button">Cancel</button>
+        </div>
+        <p class="hint">Old sessions move to the new name too. Removing a subject keeps its old sessions.</p>
+      </div>
       <div class="stack">
         <label class="label" for="customIn">New custom subject</label>
         <div class="row">
@@ -233,6 +276,7 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
         <label class="label">Unit<select class="input" id="tgtUnit"><option value="min">minutes</option><option value="h">hours</option></select></label>
       </div>
       <p class="hint" id="tgtHint"></p>
+      <p class="hint">Default: 2 hours a day.</p>
     </section>
 
     <!-- Streak -->
@@ -243,9 +287,9 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
         <div><b id="bestStreak">0</b><span>best streak</span></div>
       </div>
       <p class="hint" id="streakMsg"></p>
-      <div class="heat" id="heat" role="img" aria-label="Study heatmap, last 12 weeks"></div>
+      <div class="heat" id="heat" role="group" aria-label="Study heatmap, last 12 weeks. Days with a check mark met the daily target."></div>
       <div class="legend">
-        <span>Less</span><i class="cell"></i><i class="cell l1"></i><i class="cell l2"></i><i class="cell l3"></i><span>Target met</span>
+        <span>Less</span><i class="cell" aria-hidden="true"></i><i class="cell l1" aria-hidden="true"></i><i class="cell l2" aria-hidden="true"></i><i class="cell l3 met" aria-hidden="true"></i><span>Target met (check mark)</span>
         <span>· each column is one week, Mon to Sun</span>
       </div>
     </section>
@@ -266,7 +310,7 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
       <ul class="insights" id="anList"></ul>
       <div class="next">
         <span class="eyebrow">Next step</span>
-        <p id="anSug"></p>
+        <p id="anSug">Your next step will appear here after your first few sessions.</p>
       </div>
       <p class="fine" id="anSrc"></p>
     </section>
@@ -274,23 +318,41 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
     <!-- Data -->
     <section class="card full" aria-labelledby="hData">
       <div class="card-head"><h2 id="hData">Data</h2></div>
-      <p class="muted">Your session data is saved in this browser where possible. For a backup, export it and keep the file.</p>
+      <p class="muted">Your data is stored only in this browser, on this device. Clearing browser data, using a private window, or switching to another phone or computer will delete it.</p>
+      <div class="box warn">
+        <p><b>Warning:</b> nothing is saved on a server. Export JSON now and then and keep the file somewhere safe. It is your only backup.</p>
+      </div>
       <div class="row" style="margin-top:12px">
         <button class="btn btn-s" id="exportBtn" type="button">Export JSON</button>
+        <button class="btn btn-s" id="importBtn" type="button">Import JSON</button>
         <button class="btn btn-d" id="resetBtn" type="button">Reset all</button>
+        <input id="importFile" type="file" accept=".json,application/json" hidden>
+      </div>
+      <p class="hint">Import JSON loads a file you exported before. You will see a preview first, and nothing changes until you choose Merge or Replace.</p>
+      <div class="box" id="importWrap" hidden>
+        <p><b>Import preview</b></p>
+        <p class="muted" id="importInfo"></p>
+        <p class="muted" id="importWarn" hidden></p>
+        <div class="row" style="margin-top:10px">
+          <button class="btn btn-p btn-sm" id="importMerge" type="button">Merge with my data</button>
+          <button class="btn btn-d btn-sm" id="importReplace" type="button">Replace my data</button>
+          <button class="btn btn-s btn-sm" id="importCancel" type="button">Cancel</button>
+        </div>
+        <p class="hint">Merge keeps your current sessions and adds the new ones from the file. Your current settings stay. Replace deletes your current data and uses the file instead.</p>
       </div>
       <div class="reset-confirm" id="resetWrap" hidden>
-        <p>All sessions, subjects and settings will be deleted. Are you sure?</p>
+        <p><b>Are you sure?</b> All sessions, subjects and settings will be deleted from this browser. This cannot be undone.</p>
+        <p class="muted" style="margin-top:6px">Export JSON first if you want to keep a copy.</p>
         <div class="row" style="margin-top:10px">
           <button class="btn btn-d" id="resetYes" type="button">Yes, delete everything</button>
-          <button class="btn btn-s" id="resetNo" type="button">Cancel</button>
+          <button class="btn btn-s" id="resetNo" type="button">No, keep my data</button>
         </div>
       </div>
       <p class="hint" id="dataMsg" role="status"></p>
     </section>
   </div>
 </main>
-<footer>RxLife4 · Study Tracker · For exam study only.</footer>
+<footer>RxLife4 · Study Tracker</footer>
 
 <script>
 (function () {
@@ -781,7 +843,11 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
     logSum: $('logSum'), log: $('log'), logEmpty: $('logEmpty'),
     anHead: $('anHead'), anList: $('anList'), anSug: $('anSug'), anSrc: $('anSrc'),
     exportBtn: $('exportBtn'), resetBtn: $('resetBtn'), resetWrap: $('resetWrap'), resetYes: $('resetYes'), resetNo: $('resetNo'),
-    dataMsg: $('dataMsg'), storeNote: $('storeNote')
+    dataMsg: $('dataMsg'), storeNote: $('storeNote'),
+    defaultsLine: $('defaultsLine'), restoreTimerBtn: $('restoreTimerBtn'),
+    renameBtn: $('renameBtn'), renameWrap: $('renameWrap'), renameIn: $('renameIn'), renameSave: $('renameSave'), renameCancel: $('renameCancel'),
+    importBtn: $('importBtn'), importFile: $('importFile'), importWrap: $('importWrap'), importInfo: $('importInfo'), importWarn: $('importWarn'),
+    importMerge: $('importMerge'), importReplace: $('importReplace'), importCancel: $('importCancel')
   };
 
   function todayKey() { return keyFromDate(new Date()); }
@@ -812,6 +878,11 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
     el.setFocus.value = s.focusMin; el.setShort.value = s.shortMin;
     el.setLong.value = s.longMin; el.setEvery.value = s.longEvery;
     el.setSound.checked = s.sound;
+    var D = defaults().settings;
+    var same = s.focusMin === D.focusMin && s.shortMin === D.shortMin && s.longMin === D.longMin && s.longEvery === D.longEvery;
+    el.defaultsLine.textContent = (same ? 'Default settings: ' : 'Your settings: ') +
+      'focus ' + s.focusMin + ' min, short break ' + s.shortMin + ' min, long break ' + s.longMin + ' min after every ' + s.longEvery + ' focus sessions.' +
+      (same ? '' : ' Defaults are 25, 5, 15 and 4.');
   }
 
   function renderNotifyState() {
@@ -833,6 +904,8 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
     el.subSel.innerHTML = html;
     el.subSel.value = cur;
     el.removeCustom.hidden = data.customSubjects.indexOf(cur) < 0;
+    el.renameBtn.hidden = el.removeCustom.hidden;
+    if (el.removeCustom.hidden) el.renameWrap.hidden = true;
   }
 
   function renderTarget() {
@@ -882,14 +955,27 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
         if (k > today) { html += '<i class="cell fut" aria-hidden="true"></i>'; continue; }
         var sec = totals[k] || 0;
         var lvl = sec <= 0 ? 0 : sec >= tg ? 3 : sec >= tg / 2 ? 2 : 1;
-        var label = fmtKey(k) + ': ' + fmtDur(sec);
-        html += '<i class="cell l' + lvl + (k === today ? ' today' : '') + '" title="' + esc(label) + '" aria-label="' + esc(label) + '"></i>';
+        var label = fmtKey(k) + ': ' + fmtDur(sec) + (lvl === 3 ? ', target met' : '');
+        html += '<i class="cell l' + lvl + (lvl === 3 ? ' met' : '') + (k === today ? ' today' : '') + '" role="img" title="' + esc(label) + '" aria-label="' + esc(label) + '"></i>';
       }
       html += '</div>';
     }
     el.heat.innerHTML = html;
   }
 
+  var editingId = null, editError = '';
+  function editFormHtml(s) {
+    var subs = allSubjects(data);
+    var opts = subs.map(function (x) { return '<option value="' + esc(x) + '"' + (x === s.subject ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('');
+    if (subs.indexOf(s.subject) < 0) opts = '<option value="' + esc(s.subject) + '" selected>' + esc(s.subject) + '</option>' + opts;
+    var mins = Math.max(1, Math.round(s.sec / 60));
+    return '<li class="editing"><form class="ef" data-form="' + esc(s.id) + '">' +
+      '<label class="label">Subject<select class="input" name="subject">' + opts + '</select></label>' +
+      '<label class="label">Minutes<input class="input" name="minutes" type="number" min="1" max="1440" step="1" inputmode="numeric" value="' + mins + '"></label>' +
+      (editError ? '<p class="ferr" role="alert">' + esc(editError) + '</p>' : '') +
+      '<div class="row"><button class="btn btn-p btn-sm" type="submit">Save session</button><button class="btn btn-s btn-sm" type="button" data-cancel="1">Cancel</button></div>' +
+      '</form></li>';
+  }
   function renderLog(today) {
     var sorted = data.sessions.slice().sort(function (a, b) { return b.startedAt - a.startedAt; });
     var total = 0; data.sessions.forEach(function (s) { total += s.sec; });
@@ -897,29 +983,38 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
     el.logEmpty.hidden = sorted.length > 0;
     var yest = addDays(today, -1);
     el.log.innerHTML = sorted.slice(0, 40).map(function (s) {
+      if (s.id === editingId) return editFormHtml(s);
       var d = new Date(s.startedAt);
       var when = (s.dayKey === today ? 'Today' : s.dayKey === yest ? 'Yesterday' : fmtKey(s.dayKey)) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
       return '<li><div style="min-width:0"><div class="sub">' + esc(s.subject) + '</div><div class="meta">' + esc(when) + ' · ' + esc(fmtDur(s.sec)) + '</div></div>' +
-        '<button class="x" type="button" data-id="' + esc(s.id) + '" aria-label="Delete this session">×</button></li>';
+        '<div class="acts"><button class="eb" type="button" data-edit="' + esc(s.id) + '" aria-label="Edit this session">Edit</button>' +
+        '<button class="x" type="button" data-id="' + esc(s.id) + '" aria-label="Delete this session">×</button></div></li>';
     }).join('');
   }
 
   var anSeq = 0;
   function renderAnalysis(stats) {
     var my = ++anSeq;
+    var NEXT_FALLBACK = 'Keep logging sessions. Your next step will show here.';
     function paint(out) {
       if (my !== anSeq) return;
-      el.anHead.textContent = out.headline;
-      el.anList.innerHTML = out.items.map(function (i) {
+      out = out || {};
+      el.anHead.textContent = out.headline || 'Your weekly summary is ready.';
+      el.anList.innerHTML = (out.items || []).map(function (i) {
         return '<li class="ins t-' + esc(i.tone) + '"><span class="tag">' + esc(i.label) + '</span><span>' + esc(i.text) + '</span></li>';
       }).join('');
-      el.anSug.textContent = out.suggestion;
-      el.anSrc.textContent = out.source === 'rules'
+      el.anSug.textContent = out.suggestion || NEXT_FALLBACK;
+      el.anSrc.textContent = (!out.source || out.source === 'rules')
         ? 'This summary is built from your session data in this browser. It updates automatically after every session.'
         : 'This summary was generated automatically.';
     }
-    var fallback = ruleSummary(stats);
-    getWeeklySummary(stats).then(function (out) { paint(out || fallback); }, function () { paint(fallback); });
+    var fallback;
+    try { fallback = ruleSummary(stats); }
+    catch (e) { fallback = { source: 'rules', headline: 'Your weekly summary is ready.', items: [], suggestion: NEXT_FALLBACK }; }
+    var p;
+    try { p = getWeeklySummary(stats); } catch (e) { p = null; }
+    Promise.resolve(p).then(function (out) { paint(out || fallback); }, function () { paint(fallback); })
+      .catch(function () { paint(fallback); });
   }
 
   function renderAll() {
@@ -992,6 +1087,30 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
   }
   el.addBtn.addEventListener('click', addCustom);
   el.customIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addCustom(); } });
+  el.renameBtn.addEventListener('click', function () {
+    el.renameWrap.hidden = false;
+    el.renameIn.value = data.activeSubject;
+    el.renameIn.focus();
+    el.renameIn.select();
+  });
+  el.renameCancel.addEventListener('click', function () { el.renameWrap.hidden = true; });
+  function renameCustom() {
+    var old = data.activeSubject, i = data.customSubjects.indexOf(old);
+    if (i < 0) { el.renameWrap.hidden = true; el.subMsg.textContent = 'Only your own custom subjects can be renamed.'; return; }
+    var name = el.renameIn.value.replace(/\s+/g, ' ').trim();
+    if (!name) { el.subMsg.textContent = 'Please type a subject name.'; return; }
+    if (name === old) { el.renameWrap.hidden = true; return; }
+    var clash = allSubjects(data).some(function (s) { return s !== old && s.toLowerCase() === name.toLowerCase(); });
+    if (clash) { el.subMsg.textContent = 'That name is already in the list.'; return; }
+    data.customSubjects[i] = name;
+    data.sessions.forEach(function (s) { if (s.subject === old) s.subject = name; });
+    data.activeSubject = name;
+    el.renameWrap.hidden = true;
+    el.subMsg.textContent = '"' + name + '" saved. Old sessions now show the new name.';
+    save(); renderAll();
+  }
+  el.renameSave.addEventListener('click', renameCustom);
+  el.renameIn.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); renameCustom(); } });
   el.removeCustom.addEventListener('click', function () {
     var i = data.customSubjects.indexOf(data.activeSubject);
     if (i < 0) return;
@@ -1010,12 +1129,37 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
   el.tgtVal.addEventListener('change', targetFromInputs);
   el.tgtUnit.addEventListener('change', function () { renderAll(); });
 
+  function focusEditor() {
+    var f = el.log.querySelector('form.ef select');
+    if (f) f.focus();
+  }
   el.log.addEventListener('click', function (e) {
-    var b = e.target.closest ? e.target.closest('button.x') : null;
-    if (!b) return;
-    var id = b.getAttribute('data-id');
+    var t = e.target && e.target.closest ? e.target : null;
+    if (!t) return;
+    var edit = t.closest('button.eb'), cancel = t.closest('button[data-cancel]'), del = t.closest('button.x');
+    if (edit) { editingId = edit.getAttribute('data-edit'); editError = ''; renderAll(); focusEditor(); return; }
+    if (cancel) { editingId = null; editError = ''; renderAll(); return; }
+    if (!del) return;
+    var id = del.getAttribute('data-id');
     data.sessions = data.sessions.filter(function (s) { return s.id !== id; });
+    if (editingId === id) { editingId = null; editError = ''; }
     save(); renderAll();
+  });
+  el.log.addEventListener('submit', function (e) {
+    var f = e.target;
+    if (!f || !f.hasAttribute || !f.hasAttribute('data-form')) return;
+    e.preventDefault();
+    var id = f.getAttribute('data-form'), s = null;
+    data.sessions.forEach(function (x) { if (x.id === id) s = x; });
+    if (!s) { editingId = null; renderAll(); return; }
+    var mins = Number(f.elements.minutes.value);
+    if (!isFinite(mins) || mins < 1 || mins > 1440) { editError = 'Minutes must be a number from 1 to 1440.'; renderAll(); focusEditor(); return; }
+    var subj = f.elements.subject.value;
+    if (typeof subj === 'string' && subj.trim()) s.subject = subj;
+    s.sec = Math.round(mins) * 60;
+    editingId = null; editError = '';
+    save(); renderAll();
+    el.logSum.textContent = 'Session updated. ' + el.logSum.textContent;
   });
 
   el.exportBtn.addEventListener('click', function () {
@@ -1032,11 +1176,19 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
       el.dataMsg.textContent = 'Export is not working in this browser yet.';
     }
   });
-  el.resetBtn.addEventListener('click', function () { el.resetWrap.hidden = false; });
-  el.resetNo.addEventListener('click', function () { el.resetWrap.hidden = true; });
+  el.restoreTimerBtn.addEventListener('click', function () {
+    var d = defaults().settings;
+    data.settings.focusMin = d.focusMin; data.settings.shortMin = d.shortMin;
+    data.settings.longMin = d.longMin; data.settings.longEvery = d.longEvery;
+    if (!timer.running && timer.remainingMs == null) timer.totalMs = phaseMs(timer.phase);
+    save(); renderAll();
+  });
+  el.resetBtn.addEventListener('click', function () { hideImport(); el.resetWrap.hidden = false; });
+  el.resetNo.addEventListener('click', function () { el.resetWrap.hidden = true; el.dataMsg.textContent = 'Nothing was deleted.'; });
   el.resetYes.addEventListener('click', function () {
     data = defaults();
     timer.cycle = 0;
+    editingId = null; editError = '';
     setPhase('focus');
     save();
     el.resetWrap.hidden = true;
@@ -1044,13 +1196,113 @@ footer{color:var(--muted);font-size:.875rem;text-align:center;padding:0 16px 28p
     renderAll();
   });
 
+  /* ================= import ================= */
+  var IMPORT_MAX = 5 * 1024 * 1024;
+  var pendingImport = null, pendingBad = 0;
+  function hideImport() { pendingImport = null; pendingBad = 0; el.importWrap.hidden = true; }
+  function sessionRange(list) {
+    if (!list.length) return '';
+    var keys = list.map(function (s) { return s.dayKey; }).sort();
+    return keys[0] === keys[keys.length - 1] ? fmtKey(keys[0]) : fmtKey(keys[0]) + ' to ' + fmtKey(keys[keys.length - 1]);
+  }
+  // Reads an export file (or a raw data object). Returns { data, bad } or { error }. Changes nothing.
+  function parseBackup(text) {
+    var obj;
+    try { obj = JSON.parse(text); }
+    catch (e) { return { error: 'This file is not valid JSON, so it cannot be imported.' }; }
+    var src = obj && typeof obj === 'object' && obj.data && typeof obj.data === 'object' && !Array.isArray(obj.data) ? obj.data : obj;
+    if (!src || typeof src !== 'object' || Array.isArray(src) || !Array.isArray(src.sessions)) {
+      return { error: 'This does not look like a Study Tracker backup. Use a file made with Export JSON.' };
+    }
+    var good = [], bad = 0, seen = {};
+    src.sessions.forEach(function (s) {
+      if (!validSession(s)) { bad++; return; }
+      var id = (typeof s.id === 'string' && s.id && !seen[s.id]) ? s.id : 'imp' + Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+      seen[id] = true;
+      good.push(Object.assign({}, s, { id: id }));
+    });
+    var clean = normalize({
+      settings: src.settings, dailyTargetMin: src.dailyTargetMin,
+      customSubjects: src.customSubjects, activeSubject: src.activeSubject, sessions: good
+    });
+    return { data: clean, bad: bad };
+  }
+  // Adds sessions whose id is not already here; keeps current settings and target.
+  function mergeInto(cur, imp) {
+    var ids = {}, added = 0, builtIn = defaultSubjects().map(function (x) { return x.toLowerCase(); });
+    function addSubject(name) {
+      var k = name.toLowerCase();
+      if (builtIn.indexOf(k) >= 0 || cur.customSubjects.length >= 40) return;
+      if (!cur.customSubjects.some(function (c) { return c.toLowerCase() === k; })) cur.customSubjects.push(name);
+    }
+    cur.sessions.forEach(function (s) { ids[s.id] = true; });
+    imp.sessions.forEach(function (s) {
+      if (ids[s.id]) return;
+      ids[s.id] = true; cur.sessions.push(s); added++;
+      addSubject(s.subject);
+    });
+    imp.customSubjects.forEach(addSubject);
+    cur.sessions = cur.sessions.slice(-MAX_SESSIONS);
+    return added;
+  }
+  function showImportError(msg) { hideImport(); el.dataMsg.textContent = msg; }
+  function showImportPreview() {
+    var d = pendingImport, n = d.sessions.length, range = sessionRange(d.sessions), c = d.customSubjects.length;
+    el.importInfo.textContent = 'File: ' + n + ' session' + (n === 1 ? '' : 's') + (range ? ' from ' + range : '') +
+      ', ' + c + ' custom subject' + (c === 1 ? '' : 's') + '. Your data here now: ' + data.sessions.length + ' session' + (data.sessions.length === 1 ? '' : 's') + '.';
+    var warns = [];
+    if (pendingBad) warns.push('Skipped ' + pendingBad + ' entr' + (pendingBad === 1 ? 'y' : 'ies') + ' that were not valid sessions.');
+    if (n === 0) warns.push('This file has no sessions. Replace would clear your current sessions.');
+    el.importWarn.textContent = warns.join(' ');
+    el.importWarn.hidden = !warns.length;
+    el.resetWrap.hidden = true;
+    el.importWrap.hidden = false;
+    el.dataMsg.textContent = 'Check the preview, then choose Merge, Replace or Cancel. Nothing has changed yet.';
+  }
+  function finishImport(msg) {
+    hideImport();
+    editingId = null; editError = '';
+    if (!timer.running && timer.remainingMs == null) timer.totalMs = phaseMs(timer.phase);
+    save(); renderAll();
+    el.dataMsg.textContent = msg;
+    el.importFile.value = '';
+  }
+  el.importBtn.addEventListener('click', function () { el.importFile.value = ''; el.importFile.click(); });
+  el.importFile.addEventListener('change', function () {
+    var f = el.importFile.files && el.importFile.files[0];
+    if (!f) return;
+    hideImport();
+    if (f.size > IMPORT_MAX) { showImportError('This file is over 5 MB, too big for a study log. Nothing was changed.'); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      var res = parseBackup(String(reader.result || ''));
+      if (res.error) { showImportError(res.error + ' Nothing was changed.'); return; }
+      pendingImport = res.data; pendingBad = res.bad;
+      showImportPreview();
+    };
+    reader.onerror = function () { showImportError('The file could not be read. Nothing was changed.'); };
+    reader.readAsText(f);
+  });
+  el.importMerge.addEventListener('click', function () {
+    if (!pendingImport) return;
+    var added = mergeInto(data, pendingImport);
+    finishImport('Merged. ' + added + ' new session' + (added === 1 ? '' : 's') + ' added. Your settings and current data are kept.');
+  });
+  el.importReplace.addEventListener('click', function () {
+    if (!pendingImport) return;
+    data = pendingImport;
+    finishImport('Replaced. Your data now comes from the file.');
+  });
+  el.importCancel.addEventListener('click', function () { hideImport(); el.dataMsg.textContent = 'Import cancelled. Nothing was changed.'; });
+
   /* ================= expose for testing ================= */
   window.__studyTracker = {
     keyFromDate: keyFromDate, addDays: addDays, dayTotals: dayTotals, streakInfo: streakInfo,
     weeklyStats: weeklyStats, ruleSummary: ruleSummary, getWeeklySummary: getWeeklySummary,
     fmtDur: fmtDur, fmtClock: fmtClock, normalize: normalize, defaults: defaults, allSubjects: allSubjects,
     periodOf: periodOf, timer: timer, data: function () { return data; }, setData: function (d) { data = normalize(d); renderAll(); },
-    tick: tick, storageOk: function () { return storageOk; }
+    tick: tick, storageOk: function () { return storageOk; },
+    parseBackup: parseBackup, mergeInto: mergeInto
   };
 
   renderAll();
