@@ -28,7 +28,7 @@ var FEATURED_DRUGS=[
     d.tags.concat(['Exam ready']).forEach(function(t){pills.appendChild(el('span','fc-pill',t))});
     pills.appendChild(el('span','fc-pill fc-save','Save this for your exams'));
     note.textContent='Select your semester to get notes';
-    var h='#syllabus';
+    var h='notes.html';
     link.setAttribute('href',h);cap.setAttribute('href',h);
     cap.setAttribute('aria-label','Select your semester to get notes.');
     card.setAttribute('aria-label','Featured drug: '+d.name+', '+d.cat.toLowerCase()+' ('+(i+1)+' of '+FEATURED_DRUGS.length+')');
@@ -108,7 +108,7 @@ var FEATURED_DRUGS=[
   var navLinks=[].slice.call(menu.querySelectorAll('a'));
   var spyMap={home:'home',syllabus:'syllabus',ephedrine:'syllabus',unit2:'syllabus',unit3:'syllabus',reels:'reels',gpat:'gpat',careers:'careers',request:'',about:'about'};
   function setActive(k){navLinks.forEach(function(a){if(a.getAttribute('href')==='#'+k)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')})}
-  setActive('home');
+  setActive($('home')?'home':'syllabus');
   document.addEventListener('click',function(e){
     var a=e.target.closest&&e.target.closest('a[data-nav]');
     if(!a)return;
@@ -130,7 +130,7 @@ var FEATURED_DRUGS=[
   });
   document.addEventListener('keydown',function(e){if(e.key==='Escape'&&menu.classList.contains('open')){setMenu(false);mb.focus()}});
   function spy(){
-    var cur='home';
+    var cur=$('home')?'home':'syllabus';
     Object.keys(spyMap).forEach(function(id){var el=$(id);if(el&&!el.hidden&&el.getBoundingClientRect().top<=140)cur=id});
     setActive(spyMap[cur]);
   }
@@ -146,6 +146,7 @@ var FEATURED_DRUGS=[
   var lists=[].slice.call(document.querySelectorAll('.nlist'));
   function hideNotes(){NOTE_IDS.forEach(function(i){$(i).hidden=true})}
   function select(r){
+    if(!panel)return;
     selected=r||null;
     picks.forEach(function(p){p.checked=(p.value===selected)});
     if(!selected){npbody.hidden=true;nhint.hidden=false;hideNotes();return}
@@ -158,11 +159,12 @@ var FEATURED_DRUGS=[
     NOTE_IDS.forEach(function(i){var n=$(i);if(n.dataset.sem!==selected)n.hidden=true});
   }
   function toPanel(){
+    if(!panel)return;
     panel.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
     try{panel.focus({preventScroll:true})}catch(e){}
   }
   picks.forEach(function(p){p.addEventListener('change',function(){if(p.checked){select(p.value);setActive('syllabus')}})});
-  $('npclose').onclick=function(){select(null);var c=$('semgate');c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});var f=picks[0];if(f)f.focus({preventScroll:true})};
+  var npc=$('npclose');if(npc)npc.onclick=function(){select(null);var c=$('semgate');c.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});var f=picks[0];if(f)f.focus({preventScroll:true})};
   function openNote(id,opt){
     var el=$(id);if(!el)return;
     select(el.dataset.sem);
@@ -189,7 +191,7 @@ var FEATURED_DRUGS=[
       var bt=document.createElement('button');bt.type='button';bt.className='btn btn-p btn-sm';bt.dataset.pick=r;bt.textContent='Show Semester '+r+' notes';row.appendChild(bt);
     }else{
       row.innerHTML='<span><b>Notes for this semester:</b> coming soon</span>';
-      var a=document.createElement('a');a.className='btn btn-s btn-sm';a.href='#request';a.setAttribute('data-nav','');a.textContent='Suggest a topic';row.appendChild(a);
+      var a=document.createElement('a');a.className='btn btn-s btn-sm';a.href='index.html#request';a.textContent='Suggest a topic';row.appendChild(a);
     }
     sb.insertBefore(row,sb.firstChild);
   });
@@ -207,7 +209,7 @@ var FEATURED_DRUGS=[
   },true);
   /* deep links: #ephedrine, #unit2, #unit3, #refs, #sem-IV, #notes */
   function route(initial){
-    var id=decodeURIComponent((location.hash||'').slice(1));if(!id)return;
+    var id=decodeURIComponent((location.hash||'').slice(1));if(!id||!panel)return;
     if(NOTE_IDS.indexOf(id)>-1){openNote(id);return}
     if(id==='refs'){openNote('ephedrine',{scroll:false});goTo('refs');return}
     var m=/^sem-(I|II|III|IV|V|VI|VII|VIII)$/.exec(id);
@@ -221,6 +223,7 @@ var FEATURED_DRUGS=[
   var thumbs=[].slice.call(document.querySelectorAll('#thumbs button')),n=thumbs.length,cur=0,vimg=$('vimg');
   var curSlide=0;function showSlide(i){show(i)}
   function show(i,focusThumb){
+    if(!vimg||!n)return;
     cur=(i+n)%n;curSlide=cur;
     vimg.src=thumbs[cur].querySelector('img').src;
     vimg.alt='Ephedrine slide '+(cur+1)+' of '+n+': '+TITLES[cur];
@@ -231,17 +234,21 @@ var FEATURED_DRUGS=[
     st.scrollLeft=t.offsetLeft-st.clientWidth/2+t.clientWidth/2;
   }
   thumbs.forEach(function(b,k){b.onclick=function(){show(k)}});
-  $('vprev').onclick=function(){show(cur-1)};$('vnext').onclick=function(){show(cur+1)};
-  $('viewer').addEventListener('keydown',function(e){
+  var vp=$('vprev'),vn=$('vnext'),vw=$('viewer'),vsl=$('viewslides');
+  if(vp)vp.onclick=function(){show(cur-1)};
+  if(vn)vn.onclick=function(){show(cur+1)};
+  if(vw)vw.addEventListener('keydown',function(e){
     if(e.target.tagName==='INPUT')return;
     if(e.key==='ArrowLeft'){show(cur-1);e.preventDefault()}
     if(e.key==='ArrowRight'){show(cur+1);e.preventDefault()}
   });
   var sx=null,vs=document.querySelector('.vstage');
-  vs.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
-  vs.addEventListener('touchend',function(e){if(sx===null)return;var d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>40)show(cur+(d<0?1:-1));sx=null});
+  if(vs){
+    vs.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
+    vs.addEventListener('touchend',function(e){if(sx===null)return;var d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>40)show(cur+(d<0?1:-1));sx=null});
+  }
   show(0);
-  $('viewslides').onclick=function(){openNote('ephedrine',{scroll:false});show(0);$('viewer').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});$('viewer').focus({preventScroll:true});setActive('notes')};
+  if(vsl&&vw)vsl.onclick=function(){openNote('ephedrine',{scroll:false});show(0);vw.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});vw.focus({preventScroll:true});setActive('notes')};
 
   /* ---------- reels player ---------- */
   var REELS={
@@ -262,10 +269,11 @@ var FEATURED_DRUGS=[
   }
   function closeReel(){pv.pause();pv.removeAttribute('src');pv.load();pl.hidden=true;if(lastBtn)lastBtn.focus()}
   document.querySelectorAll('[data-reel]').forEach(function(b){b.onclick=function(){openReel(b.dataset.reel,b)}});
-  $('pclose').onclick=closeReel;
+  var pc=$('pclose');if(pc)pc.onclick=closeReel;
 
   /* ---------- topic request ---------- */
   var rt=$('rtopic'),rs=$('rsub'),rp=$('rprev');
+  if(rt&&rs&&rp){
   function compose(){
     var t=rt.value.trim(),s=rs.value.trim();
     return 'Hi RxLife4! Please explain this topic next: '+(t||'[your topic]')+'.'+(s?' Subject/semester: '+s+'.':'')+' (sent from the RxLife4 website)';
@@ -281,6 +289,7 @@ var FEATURED_DRUGS=[
       else{rp.focus();rp.select();m.className='fmsg bad';m.textContent='Automatic copy was blocked here. The message is selected: use Copy from your phone or keyboard menu, then open Instagram DM.'}
     });
   };
+  }
 
   /* ---------- share ---------- */
   function shareUrl(){return /^https?:/.test(location.protocol)?location.href.split('#')[0]:IG}
