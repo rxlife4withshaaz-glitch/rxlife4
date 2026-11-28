@@ -370,6 +370,7 @@ var FEATURED_DRUGS=[
     BP302T:{1:'assets/pdf/RxLife4-Physical-Pharmaceutics-I-Unit-1.pdf',2:'assets/pdf/RxLife4-Physical-Pharmaceutics-I-Unit-2.pdf',3:'assets/pdf/RxLife4-Physical-Pharmaceutics-I-Unit-3.pdf',4:'assets/pdf/RxLife4-Physical-Pharmaceutics-I-Unit-4.pdf',5:'assets/pdf/RxLife4-Physical-Pharmaceutics-I-Unit-5.pdf'},
     BP303T:{1:'assets/pdf/RxLife4-Microbiology-Unit-1.pdf',2:'assets/pdf/RxLife4-Microbiology-Unit-2.pdf',3:'assets/pdf/RxLife4-Microbiology-Unit-3.pdf',4:'assets/pdf/RxLife4-Microbiology-Unit-4.pdf',5:'assets/pdf/RxLife4-Microbiology-Unit-5.pdf'},
     BP304T:{1:'assets/pdf/RxLife4-Pharmaceutical-Engineering-Unit-1.pdf',2:'assets/pdf/RxLife4-Pharmaceutical-Engineering-Unit-2.pdf',3:'assets/pdf/RxLife4-Pharmaceutical-Engineering-Unit-3.pdf',4:'assets/pdf/RxLife4-Pharmaceutical-Engineering-Unit-4.pdf',5:'assets/pdf/RxLife4-Pharmaceutical-Engineering-Unit-5.pdf'},
+    BP503T:{1:'assets/pdf/RxLife4-Pharmacology-II-Unit-1.pdf',2:'assets/pdf/RxLife4-Pharmacology-II-Unit-2.pdf',3:'assets/pdf/RxLife4-Pharmacology-II-Unit-3.pdf',4:'assets/pdf/RxLife4-Pharmacology-II-Unit-4.pdf',5:'assets/pdf/RxLife4-Pharmacology-II-Unit-5.pdf'},
     BP404T:{2:'assets/pdf/RxLife4-Pharmacology-I-Unit-II.pdf',3:'assets/pdf/RxLife4-Pharmacology-I-Unit-III.pdf'}
   };
   [].slice.call(document.querySelectorAll('.ubtns[data-code]')).forEach(function(row){
